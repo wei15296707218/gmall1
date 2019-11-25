@@ -52,4 +52,9 @@ public interface ProductMapper {
     扣库存
      */
     int reduceProductStock(@Param("productId") Integer productId,@Param("stock") Integer stock);
+    /*
+    查看热销产品
+     */
+    List<Product> isHotProduct(@Param("categoryid") Integer category_id
+                                ,@Param("ishot")Integer is_hot);
 }

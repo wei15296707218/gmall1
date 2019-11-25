@@ -28,9 +28,16 @@ spring:
     mode: HTML
   mvc:
     static-path-pattern: /static/**
+  resources:
+    static-locations: file:D:/upload
 mybatis:
   mapper-locations: classpath*:com/ssw/mapper/*Mapper.xml
   config-location: classpath:mybatis-config.xml
+
+
+business:
+  imageHost: http://localhost:8080/static/
+
 pagehelper:
   helper-dialect: mysql
   reasonable: true

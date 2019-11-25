@@ -3,7 +3,6 @@ package com.ssw.service;
 import com.ssw.common.ServerResponse;
 import com.ssw.pojo.UserInfo;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 public interface IUserService {
     //注册接口
@@ -17,4 +16,6 @@ public interface IUserService {
     public ServerResponse forget_reset_password(String username,String newpassword,String forgettoken);
     //修改信息
     public ServerResponse update_information(UserInfo user);
+    //查询登录状态下用户的详细信息
+    public UserInfo findUserInfoByUserid(Integer userid);
 }

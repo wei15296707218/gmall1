@@ -55,5 +55,9 @@ public interface CartMapper {
     List<Cart> findCartsByUseridAndChecked(@Param("userId") Integer userId);
     //清空购物车中已支付的商品
     Integer cleanCart(@Param("cartList") List<Cart> cartList);
+    //删除购物车某些商品
+    Integer deleteByUseridAndProductIds(
+            @Param("userId") Integer userId,
+            @Param("productIdList") List<Integer> productIdList);
 
 }

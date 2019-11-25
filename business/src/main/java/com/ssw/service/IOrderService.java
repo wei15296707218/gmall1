@@ -2,7 +2,7 @@ package com.ssw.service;
 
 import com.ssw.common.ServerResponse;
 import com.ssw.pojo.Cart;
-import com.sun.javafx.css.StyleManager;
+
 
 import java.util.List;
 import java.util.Map;
@@ -27,11 +27,12 @@ public interface IOrderService {
     /**
      * 订单列表
      * */
-    //ServerResponse list(Integer userId, Integer pageNum, Integer pageSize);
+    ServerResponse list(Integer userId, Integer pageNum, Integer pageSize);
+    ServerResponse listfont(Integer userId);
     /**
      * 订单详情
      * */
-    //ServerResponse detail(Long orderNo);
+    ServerResponse detail(Long orderNo);
     /**
      *
      * 支付接口
@@ -47,7 +48,7 @@ public interface IOrderService {
      *
      * 查询订单的支付状态
      * */
-    //ServerResponse query_order_pay_status(Long orderNo);
+    ServerResponse query_order_pay_status(Long orderNo);
 
 
     /**

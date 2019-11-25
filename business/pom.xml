@@ -154,9 +154,26 @@
             <version>1.2.3</version>
             <scope>compile</scope>
         </dependency>
+        <!-- 打包时支付宝添加的依赖-->
+        <dependency>
+            <groupId>com.alipay.api</groupId>
+            <artifactId>apipay-sdk-java</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/src/main/resources/libs/alipay-sdk-java-3.3.0.jar</systemPath>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alipay.demo.trade</groupId>
+            <artifactId>apipay-trade-sdk</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/src/main/resources/libs/alipay-trade-sdk-20161215.jar</systemPath>
+        </dependency>
     </dependencies>
 
     <build>
+        <finalName>GMall</finalName>
         <plugins>
             <plugin>
                 <groupId>org.mybatis.generator</groupId>
@@ -170,6 +187,9 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <includeSystemScope>true</includeSystemScope>
+                </configuration>
             </plugin>
             <!--maven的核心插件之-complier插件默认只支持编译Java 1.4，因此需要加上支持高版本jre的配置，在pom.xml里面加上 增加编译插件 -->
             <plugin>

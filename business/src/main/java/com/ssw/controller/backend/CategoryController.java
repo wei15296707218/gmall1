@@ -49,14 +49,7 @@ public class CategoryController {
     //查看类别  categoryId,categoryName,categoryUrl
     @RequestMapping("/{categoryId}")
     public ServerResponse getCategoryById(@PathVariable("categoryId") Integer categoryId,HttpSession session){
-        UserInfo user=(UserInfo) session.getAttribute(Const.CURRENT_USER);
-        if (user==null){
-            return ServerResponse.createServerResponseByError(ResponseCode.NOT_LOGIN,"未登录");
-        }
-        int role=user.getRole();
-        if (role== RoleEnum.ROLE_USER.getRole()){
-            return ServerResponse.createServerResponseByError(ResponseCode.NOT_LOGIN,"权限不足");
-        }
+
         return categoryService.getCategoryById(categoryId);
     }
     //递归查看类别  categoryId,categoryName,categoryUrl

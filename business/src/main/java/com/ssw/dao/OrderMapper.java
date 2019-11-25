@@ -50,4 +50,6 @@ public interface  OrderMapper {
     Order findOrderByOrderNo(@Param("orderNo") Long orderNo);
 
     int updateOrderstatusAndPaymentTimeByOrderNo(@Param("order") Order order);
+
+    List<Order> findOrderByUserid(Integer userid);
 }

@@ -115,7 +115,7 @@ public class UserServiceImpl implements IUserService {
         //3.返回结果
         //生成token
         String token=UUID.randomUUID().toString();
-        TokenCache.set("username"+username, token);
+        TokenCache.set("username:"+username, token);
         return ServerResponse.createServerResponseBySuccess(ResponseCode.SUCCESS,token);
     }
 
@@ -132,7 +132,7 @@ public class UserServiceImpl implements IUserService {
             return ServerResponse.createServerResponseByError(ResponseCode.ERROR,"token不能为空");
         }
         //是否修改的是自己的账号
-        String token=TokenCache.get("username"+username);
+        String token=TokenCache.get("username:"+username);
         if (token==null){
             return ServerResponse.createServerResponseByError(ResponseCode.ERROR,"不能修改别人的密码或者token已过期");
         }
@@ -156,5 +156,11 @@ public class UserServiceImpl implements IUserService {
             return ServerResponse.createServerResponseByError(ResponseCode.ERROR,"修改失败");
         }
         return ServerResponse.createServerResponseBySuccess();
+    }
+
+    @Override
+    public UserInfo findUserInfoByUserid(Integer userid) {
+
+        return userInfoMapper.selectByPrimaryKey(userid);
     }
 }

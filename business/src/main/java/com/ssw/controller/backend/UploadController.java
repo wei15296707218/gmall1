@@ -26,6 +26,8 @@ public class UploadController {
     public String upload(){
         return "upload";
     }
+
+
     @PostMapping("upload")
     @ResponseBody
     public ServerResponse upload(@RequestParam("uploadfile")MultipartFile uploadfile, HttpSession session){
@@ -48,7 +50,9 @@ public class UploadController {
         //生成新的文件名
         String newFilename = UUID.randomUUID().toString()+extendName;
         System.out.println("newFilename:"+newFilename);
-        File mkdir = new File("d:/upload");
+//      本地  File mkdir = new File("d:/upload");
+         File mkdir = new File("/usr/ssw/img");
+
         if(!mkdir.exists()){
             mkdir.mkdirs();
         }

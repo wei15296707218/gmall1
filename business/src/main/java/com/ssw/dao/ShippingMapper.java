@@ -43,4 +43,13 @@ public interface ShippingMapper {
      * @mbg.generated
      */
     int updateByPrimaryKey(Shipping record);
+
+    /*
+    根据用户id 查询已有地址
+     */
+    List<Shipping> findShippingByUserId(Integer userid);
+
+    /*
+    * 发货*/
+    int deliver(Long orderNo);
 }

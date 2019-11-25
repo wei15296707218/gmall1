@@ -86,7 +86,7 @@ public class CategoryServiceImpl implements ICategoryService {
             categorySet.add(category);
         }
         //查看categoryId的平级子类
-        List<Category> categoryList=categoryMapper.selectCategoryById(categoryId);
+        List<Category> categoryList=categoryMapper.selectCategoryById(categoryId);//id为parentid,
         if (categoryList!=null&&categoryList.size()>0){
             for (Category category1:categoryList){
                 findAllChildCategory(categorySet,category1.getId());

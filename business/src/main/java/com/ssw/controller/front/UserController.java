@@ -7,6 +7,7 @@ import com.ssw.service.IUserService;
 import com.ssw.utils.Const;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpRequest;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,6 +29,7 @@ import javax.servlet.http.HttpSession;
   4、@component （把普通pojo实例化到spring容器中，相当于配置文件中的 <bean id="" class=""/>）
     泛指各种组件，就是说当我们的类不属于各种归类的时候（不属于@Controller、@Services等的时候），我们就可以使用@Component来标注这个类。
  */
+@CrossOrigin
 @RestController
 @RequestMapping("/user/")
 public class UserController {
@@ -41,9 +43,9 @@ public class UserController {
 
     }
     //登录
-    @RequestMapping(value="login/{username}/{password}")
-    public ServerResponse login(@PathVariable("username") String username,
-                                @PathVariable("password") String password,
+    @RequestMapping(value="login")
+    public ServerResponse login( String username,
+                                 String password,
                                 HttpSession session){
         ServerResponse serverResponse =userService.login(username,password,1);
         //判断是否登录成功
@@ -73,11 +75,31 @@ public class UserController {
     public ServerResponse update_information(UserInfo user,HttpSession session){
         UserInfo loginUser=(UserInfo)session.getAttribute(Const.CURRENT_USER);
         if (loginUser==null){
-            return ServerResponse.createServerResponseBySuccess(ResponseCode.NOT_LOGIN,"未登录");
+            return ServerResponse.createServerResponseByError(ResponseCode.NOT_LOGIN,"未登录");
         }
+        //将登录用户的id获取传递给修改的用户,以便于进行通过id在数据库修改信息.
         user.setId(loginUser.getId());
+
         ServerResponse serverResponse=userService.update_information(user);
+        //这里未进行将更新后的用户重新放入session中.
+        if(serverResponse.isSuccess()){
+            //更新session中用户信息
+            UserInfo userInfo1=  userService.findUserInfoByUserid(loginUser.getId());
+            session.setAttribute(Const.CURRENT_USER,userInfo1);
+        }
         return serverResponse;
+    }
+    /**
+     * 获取登录用户详细信息
+     * */
+    @RequestMapping(value = "/get_inforamtion.do")
+    public ServerResponse get_inforamtion(HttpSession session){
+        UserInfo userInfo=(UserInfo) session.getAttribute(Const.CURRENT_USER);
+      /*  if(userInfo==null){
+            return ServerResponse.createServerResponseByError(ResponseCode.NOT_LOGIN,"用户未登录");
+        }*/
+        userInfo.setPassword("");
+        return  ServerResponse.createServerResponseBySuccess(userInfo);
     }
     /**
      * 退出登录

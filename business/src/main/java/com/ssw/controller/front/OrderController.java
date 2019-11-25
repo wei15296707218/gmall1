@@ -12,6 +12,7 @@ import com.ssw.utils.Const;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
@@ -28,13 +29,11 @@ public class OrderController {
 //    /**
 //     * 创建订单
 //     * */
-   @RequestMapping("{shippingid}")
-    public ServerResponse createOrder(HttpSession session, @PathVariable("shippingid") Integer shippingId){
+   @RequestMapping("/create.do")
+    public ServerResponse createOrder(HttpSession session, Integer shippingId){
 
         UserInfo userInfo=(UserInfo) session.getAttribute(Const.CURRENT_USER);
-        if(userInfo==null){
-            return ServerResponse.createServerResponseByError(ResponseCode.ERROR,"需要登录");
-        }
+
         return  orderService.createOrder(userInfo.getId(),shippingId);
    }
 //
@@ -62,42 +61,45 @@ public class OrderController {
 //        if(userInfo==null){
 //            return ServerResponse.serverResponseByError("需要登录");
 //        }
-//        return  orderService.get_order_cart_product(userInfo.getId());
-//    }
-//
-//    /**
-//     * 订单List
-//     * */
-//    @RequestMapping(value = "/list.do")
-//    public ServerResponse list(HttpSession session,
-//                               @RequestParam(required = false,defaultValue = "1")Integer pageNum,
-//                               @RequestParam(required = false,defaultValue = "10")Integer pageSize){
-//
-//        UserInfo userInfo=(UserInfo) session.getAttribute(Const.CURRENTUSER);
-//        if(userInfo==null){
-//            return ServerResponse.serverResponseByError("需要登录");
-//        }
-//        return  orderService.list(userInfo.getId(),pageNum,pageSize);
-//    }
-//
-//    /**
-//     * 订单详情detail
-//     * */
-//    @RequestMapping(value = "/detail.do")
-//    public ServerResponse detail(HttpSession session,Long orderNo){
-//
-//        UserInfo userInfo=(UserInfo) session.getAttribute(Const.CURRENTUSER);
-//        if(userInfo==null){
-//            return ServerResponse.serverResponseByError("需要登录");
-//        }
-//        return  orderService.detail(orderNo);
 //    }
 //
     /**
+     * 订单List
+     * */
+    @RequestMapping(value = "/list.do")
+    public ServerResponse list(HttpSession session,
+                               @RequestParam(required = false) Integer userid,
+                               @RequestParam(required = false,defaultValue = "1")Integer pageNum,
+                               @RequestParam(required = false,defaultValue = "10")Integer pageSize){
+
+        //UserInfo userInfo=(UserInfo) session.getAttribute(Const.CURRENT_USER);
+
+        return  orderService.list(userid,pageNum,pageSize);
+    }
+    @RequestMapping(value = "/listfont.do")
+    public ServerResponse listfont(HttpSession session){
+
+
+        UserInfo userInfo=(UserInfo) session.getAttribute(Const.CURRENT_USER);
+
+        return orderService.listfont(userInfo.getId());
+    }
+
+   /**
+     * 订单详情detail
+     * */
+    @RequestMapping(value = "/detail.do")
+    public ServerResponse detail(HttpSession session,Long orderNo){
+
+
+        return  orderService.detail(orderNo);
+    }
+
+    /**
      * 支付接口
      * */
-    @RequestMapping("pay/{orderNo}")
-    public ServerResponse pay(HttpSession session,@PathVariable("orderNo") Long orderNo){
+    @RequestMapping("pay")
+    public ServerResponse pay(HttpSession session, Long orderNo){
 
         UserInfo userInfo=(UserInfo) session.getAttribute(Const.CURRENT_USER);
         if(userInfo==null){
@@ -148,19 +150,15 @@ public class OrderController {
         return orderService.alipay_callback(requestparams);
 
     }
-//
-//
-//    /**
-//     * 查询订单的支付状态
-//     * */
-//    @RequestMapping(value = "/query_order_pay_status.do")
-//    public ServerResponse query_order_pay_status(HttpSession session,Long orderNo){
-//
-//        UserInfo userInfo=(UserInfo) session.getAttribute(Const.CURRENTUSER);
-//        if(userInfo==null){
-//            return ServerResponse.serverResponseByError("需要登录");
-//        }
-//
-//        return orderService.query_order_pay_status(orderNo);
-//    }
+
+
+    /**
+     * 查询订单的支付状态
+     * */
+    @RequestMapping(value = "/query_order_pay_status.do")
+    public ServerResponse query_order_pay_status(HttpSession session,Long orderNo){
+
+
+        return orderService.query_order_pay_status(orderNo);
+    }
 }

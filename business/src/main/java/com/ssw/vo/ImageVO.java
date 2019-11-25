@@ -3,6 +3,7 @@ package com.ssw.vo;
 public class ImageVO {
     private String uri;
     private String url;
+
     public ImageVO() {
     }
     public ImageVO(String uri, String url) {

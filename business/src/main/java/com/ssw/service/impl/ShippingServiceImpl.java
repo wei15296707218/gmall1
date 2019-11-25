@@ -8,6 +8,8 @@ import com.ssw.service.IShippingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class ShippingServiceImpl implements IShippingService {
     @Autowired
@@ -51,4 +53,24 @@ public class ShippingServiceImpl implements IShippingService {
         return ServerResponse.createServerResponseBySuccess(shipping);
 
     }
+
+    @Override
+    public ServerResponse findShippingByUserId(Integer userid) {
+       List<Shipping> shippings =  shippingMapper.findShippingByUserId(userid);
+       if (shippings==null || shippings.size()==0){
+           return ServerResponse.createServerResponseByError(ResponseCode.ERROR,"还没有添加地址,请添加地址");
+       }
+        return ServerResponse.createServerResponseBySuccess(shippings);
+    }
+
+    @Override
+    public ServerResponse deliver(Long orderNo) {
+
+        int result = shippingMapper.deliver(orderNo);
+        if (result!=1){
+          return ServerResponse.createServerResponseByError(ResponseCode.ERROR,"发货失败");
+        }
+        return ServerResponse.createServerResponseBySuccess();
+    }
+
 }

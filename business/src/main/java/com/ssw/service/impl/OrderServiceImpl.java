@@ -13,6 +13,8 @@ import com.alipay.demo.trade.service.impl.AlipayMonitorServiceImpl;
 import com.alipay.demo.trade.service.impl.AlipayTradeServiceImpl;
 import com.alipay.demo.trade.service.impl.AlipayTradeWithHBServiceImpl;
 import com.alipay.demo.trade.utils.ZxingUtils;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import com.ssw.alipay.Main;
 import com.ssw.common.*;
@@ -23,6 +25,7 @@ import com.ssw.service.IOrderService;
 import com.ssw.service.IProductService;
 import com.ssw.service.IShippingService;
 import com.ssw.utils.BigDecimalUtils;
+import com.ssw.utils.Const;
 import com.ssw.utils.DateUtils;
 import com.ssw.vo.*;
 import org.apache.commons.lang.StringUtils;
@@ -41,6 +44,8 @@ import java.util.Random;
 
 @Service
 public class OrderServiceImpl implements IOrderService {
+
+
     @Autowired
     CartMapper cartMapper;
     @Autowired
@@ -72,8 +77,9 @@ public class OrderServiceImpl implements IOrderService {
           return ServerResponse.createServerResponseByError(ResponseCode.ERROR,"地址参数不能为空");
         }
 
-//        //step2:根据userId查询购物车中已选中的商品 -》List<Cart>
+//        //step2:根据userId查询购物车中已选中的商品-》List<Cart>
        ServerResponse<List<Cart>>  serverResponse= cartService.findCartsByUseridAndChecked(userId);
+
       List<Cart> cartlist =  serverResponse.getData();
        if (cartlist==null || cartlist.size()==0){
            return ServerResponse.createServerResponseByError(ResponseCode.ERROR,"购物车为空或者未选中商品");
@@ -177,56 +183,112 @@ public class OrderServiceImpl implements IOrderService {
      ///   return ServerResponse.serverResponseBySuccess(cartOrderItemVO);
    // }
 //
-//    @Override
-//    public ServerResponse list(Integer userId,Integer pageNum,Integer pageSize) {
-//
-//
-//        PageHelper.startPage(pageNum,pageSize);
-//        List<Order> orderList=Lists.newArrayList();
-//        if(userId==null){
-//            //查询所有
-//            orderList=orderMapper.selectAll();
-//        }else{//查询当前用户
-//            orderList=orderMapper.findOrderByUserid(userId);
-//        }
-//
-//        if(orderList==null||orderList.size()==0){
-//            return  ServerResponse.serverResponseByError("未查询到订单信息");
-//
-//        }
-//        List<OrderVO> orderVOList=Lists.newArrayList();
-//        for(Order order:orderList){
-//            List<OrderItem> orderItemList=   orderItemMapper.findOrderItemsByOrderno(order.getOrderNo());
-//            OrderVO orderVO=assembleOrderVO(order,orderItemList,order.getShippingId());
-//            orderVOList.add(orderVO);
-//        }
-//
-//        PageInfo pageInfo=new PageInfo(orderVOList);
-//        return ServerResponse.serverResponseBySuccess(pageInfo);
-//    }
-//
-//    @Override
-//    public ServerResponse detail(Long orderNo) {
-//        //step1:参数非空校验
-//        if(orderNo==null){
-//            return  ServerResponse.serverResponseByError("参数不能为空");
-//        }
-//        //step2:查询订单
-//        Order order=orderMapper.findOrderByOrderNo(orderNo);
-//        if(order==null){
-//            return  ServerResponse.serverResponseByError("订单不存在");
-//        }
-//        //step3:获取ordervo
-//        List<OrderItem> orderItemList= orderItemMapper.findOrderItemsByOrderno(order.getOrderNo());
-//        OrderVO orderVO= assembleOrderVO(order,orderItemList,order.getShippingId());
-//        //step4:返回结果
-//
-//        return ServerResponse.serverResponseBySuccess(orderVO);
-//    }
-//
-//
-//
-//
+    @Override
+    public ServerResponse list(Integer userId,Integer pageNum,Integer pageSize) {
+
+
+        PageHelper.startPage(pageNum,pageSize);
+        List<Order> orderList=Lists.newArrayList();
+        if(userId==null){
+            //查询所有
+            orderList=orderMapper.selectAll();
+        }else{//查询当前用户
+            orderList=orderMapper.findOrderByUserid(userId);
+        }
+
+        if(orderList==null||orderList.size()==0){
+            return  ServerResponse.createServerResponseByError("未查询到订单信息");
+
+        }
+        List<OrderVO> orderVOList=Lists.newArrayList();
+        for(Order order:orderList){
+            List<OrderItem> orderItemList=orderItemMapper.findOrderItemByOrderNo(order.getOrderNo());
+            OrderVO orderVO = assembleOrderVO1(order,orderItemList,order.getShippingId());
+
+            orderVOList.add(orderVO);
+        }
+
+        PageInfo pageInfo=new PageInfo(orderVOList);
+        return ServerResponse.createServerResponseBySuccess(pageInfo);
+    }
+
+    @Override
+    public ServerResponse listfont(Integer userId) {
+        if(userId==null) {
+            return ServerResponse.createServerResponseByError(ResponseCode.NOT_LOGIN,"未登录");
+        }
+        List<Order> orderList=Lists.newArrayList();
+        orderList=orderMapper.findOrderByUserid(userId);
+        if(orderList==null||orderList.size()==0){
+            return  ServerResponse.createServerResponseByError("未查询到订单信息");
+        }
+        List<OrderVO> orderVOList=Lists.newArrayList();
+        for(Order order:orderList){
+            List<OrderItem> orderItemList=orderItemMapper.findOrderItemByOrderNo(order.getOrderNo());
+            OrderVO orderVO = assembleOrderVO1(order,orderItemList,order.getShippingId());
+            orderVOList.add(orderVO);
+        }
+
+        return ServerResponse.createServerResponseBySuccess(orderVOList);
+    }
+
+    private OrderVO assembleOrderVO1(Order order, List<OrderItem> orderItemList, Integer shippingId){
+        OrderVO orderVO=new OrderVO();
+
+        List<OrderItemVO> orderItemVOList=Lists.newArrayList();
+        for(OrderItem orderItem:orderItemList){
+            OrderItemVO orderItemVO= assembleOrderItemVO(orderItem);
+            orderItemVOList.add(orderItemVO);
+        }
+        orderVO.setOrderItemVoList(orderItemVOList);
+        orderVO.setImageHost(imageHost);
+        Shipping shipping= shippingMapper.selectByPrimaryKey(shippingId);
+        if(shipping!=null){
+            orderVO.setShippingId(shippingId);
+            ShippingVO shippingVO= assmbleShippingVO(shipping);
+            orderVO.setShippingVo(shippingVO);
+            orderVO.setReceiverName(shipping.getReceiverName());
+        }
+
+        orderVO.setStatus(order.getStatus());
+        Const.OrderStatusEnum orderStatusEnum= Const.OrderStatusEnum.codeOf(order.getStatus());
+        if(orderStatusEnum!=null){
+            orderVO.setStatusDesc(orderStatusEnum.getDesc());
+        }
+
+        orderVO.setPostage(0);
+        orderVO.setPayment(order.getPayment());
+        orderVO.setPaymentType(order.getPaymentType());
+        PaymentEnum paymentEnum=PaymentEnum.codeof(order.getPaymentType());
+        if(paymentEnum!=null){
+            orderVO.setPaymentTypeDesc(paymentEnum.getDesc());
+        }
+        orderVO.setOrderNo(order.getOrderNo());
+        return orderVO;
+    }
+
+
+    @Override
+    public ServerResponse detail(Long orderNo) {
+        //step1:参数非空校验
+        if(orderNo==null){
+            return  ServerResponse.createServerResponseByError(ResponseCode.ERROR,"参数不能为空");
+        }
+        //step2:查询订单
+        Order order=orderMapper.findOrderByOrderNo(orderNo);
+        if(order==null){
+            return  ServerResponse.createServerResponseByError(ResponseCode.ERROR,"订单不存在");
+        }
+        //step3:获取ordervo
+        List<OrderItem> orderItemList= orderItemMapper.findOrderItemByOrderNo(order.getOrderNo());
+        OrderVO orderVO= assembleOrderVO1(order,orderItemList,order.getShippingId());
+        //step4:返回结果
+        return ServerResponse.createServerResponseBySuccess(orderVO);
+    }
+
+
+
+
     private ServerResponse assembleOrderVO(Order order, List<OrderItem> orderItemList, Integer shippingId){
         OrderVO orderVO=new OrderVO();
 
@@ -494,22 +556,22 @@ public class OrderServiceImpl implements IOrderService {
         }
         return ("支付信息保存失败");
     }
-//
-//    @Override
-//    public ServerResponse query_order_pay_status(Long orderNo) {
-//
-//        if(orderNo==null){
-//            return  ServerResponse.serverResponseByError("订单号不能为空");
-//        }
-//        Order order= orderMapper.findOrderByOrderNo(orderNo);
-//        if(order==null){
-//            return ServerResponse.serverResponseByError("订单不存在");
-//        }
-//        if(order.getStatus()==Const.OrderStatusEnum.ORDER_PAYED.getCode()){
-//            return ServerResponse.serverResponseBySuccess(true);
-//        }
-//        return ServerResponse.serverResponseBySuccess(false);
-//    }
+
+    @Override
+    public ServerResponse query_order_pay_status(Long orderNo) {
+
+        if(orderNo==null){
+            return  ServerResponse.createServerResponseByError(ResponseCode.ERROR,"订单号不能为空");
+        }
+        Order order= orderMapper.findOrderByOrderNo(orderNo);
+        if(order==null){
+            return ServerResponse.createServerResponseByError(ResponseCode.ERROR,"订单不存在");
+        }
+        if(order.getStatus()==OrderStatusEnum.ORDER_PAYED.getStatus()){
+            return ServerResponse.createServerResponseBySuccess(true);
+        }
+        return ServerResponse.createServerResponseBySuccess(false);
+    }
 //
 //    @Transactional
 //    @Override
@@ -649,7 +711,9 @@ private static Log log = LogFactory.getLog(Main.class);
                 .setUndiscountableAmount(undiscountableAmount).setSellerId(sellerId).setBody(body)
                 .setOperatorId(operatorId).setStoreId(storeId).setExtendParams(extendParams)
                 .setTimeoutExpress(timeoutExpress)
-                .setNotifyUrl("http://fqy8xm.natappfree.cc/order/callback.do")//支付宝服务器主动通知商户服务器里指定的页面http路径,根据需要设置
+          //维护      .setNotifyUrl("http://stnvqv.natappfree.cc/order/callback.do")//支付宝服务器主动通知商户服务器里指定的页面http路径,根据需要设置
+           //线上
+                .setNotifyUrl("http://121.36.11.232:8080/order/callback.do")//支付宝服务器主动通知商户服务器里指定的页面http路径,根据需要设置
                 .setGoodsDetailList(goodsDetailList);
 
         AlipayF2FPrecreateResult result = tradeService.tradePrecreate(builder);
@@ -659,9 +723,10 @@ private static Log log = LogFactory.getLog(Main.class);
 
                 AlipayTradePrecreateResponse response = result.getResponse();
                 dumpResponse(response);
-
+        /// 线上环境 usr/ssw/img   /usr/ssw/img
+                // d:/upload
                 // 需要修改为运行机器上的路径
-                String filePath = String.format("d:/upload/qr-%s.png",
+                String filePath = String.format("/usr/ssw/img/qr-%s.png",
                         response.getOutTradeNo());
                 log.info("filePath:" + filePath);
                 ZxingUtils.getQRCodeImge(response.getQrCode(), 256, filePath);

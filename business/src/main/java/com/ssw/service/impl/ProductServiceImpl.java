@@ -25,6 +25,7 @@ import java.util.List;
 
 @Service
 public class ProductServiceImpl implements IProductService {
+
     @Autowired
     ICategoryService categoryService;
     @Autowired
@@ -137,6 +138,21 @@ public class ProductServiceImpl implements IProductService {
             return ServerResponse.createServerResponseByError(ResponseCode.ERROR,"扣库存失败");
         }
         return ServerResponse.createServerResponseBySuccess();
+    }
+
+    @Override
+    public ServerResponse isHotProduct(Integer category_id, Integer is_hot) {
+        if (category_id==null){
+            return ServerResponse.createServerResponseByError(ResponseCode.ERROR,"类别id必须传值");
+        }
+        if (is_hot==null){
+            return ServerResponse.createServerResponseByError(ResponseCode.ERROR,"热销状态必须传值");
+        }
+        List<Product> products=productMapper.isHotProduct(category_id,is_hot);
+        if (products==null){
+            return ServerResponse.createServerResponseByError(ResponseCode.ERROR,"商品不存在");
+        }
+        return ServerResponse.createServerResponseBySuccess(products);
     }
 
     private ProductDetailVO assembleProductDetailVO(Product product){

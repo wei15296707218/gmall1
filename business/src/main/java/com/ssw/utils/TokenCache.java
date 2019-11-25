@@ -9,6 +9,9 @@ import java.util.concurrent.TimeUnit;
  * 基于Guava Cache缓存类
  * */
 public class TokenCache {
+    /*
+    缓存核心类
+     */
     private static LoadingCache<String,String> localCache= CacheBuilder.newBuilder()
             .initialCapacity(1000)//初始化缓存项为1000
             .maximumSize(10000)//设置缓存项最大值不超过10000

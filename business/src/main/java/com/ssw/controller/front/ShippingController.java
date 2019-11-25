@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpSession;
 
 @RestController
-@RequestMapping("shipping")
+@RequestMapping("/shipping/")
 public class ShippingController {
     @Autowired
     IShippingService shippingService;
@@ -25,5 +25,22 @@ public class ShippingController {
         }
         shipping.setUserId(user.getId());
         return shippingService.add(shipping);
+    }
+
+    @RequestMapping(value = "findShppingByUserId.do")
+    public ServerResponse findShippingByUserId( HttpSession session){
+        UserInfo user=(UserInfo) session.getAttribute(Const.CURRENT_USER);
+
+        return shippingService.findShippingByUserId(user.getId());
+    }
+    @RequestMapping(value = "findShppingByShippingId.do")
+    public ServerResponse findShippingByShippingId(HttpSession session,Integer shippingid){
+
+        return shippingService.findShippingById(shippingid);
+    }
+    @RequestMapping(value="deliver")
+    public ServerResponse deliver(Long orderNo){
+
+        return shippingService.deliver(orderNo) ;
     }
 }

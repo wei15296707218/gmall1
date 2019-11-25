@@ -16,9 +16,9 @@ import javax.servlet.http.HttpSession;
 public class UserManageController {
     @Autowired
     IUserService userService;
-    @RequestMapping(value="login/{username}/{password}")
-    public ServerResponse login(@PathVariable("username") String username,
-                                @PathVariable("password") String password,
+    @RequestMapping(value="login")
+    public ServerResponse login( String username,
+                                 String password,
                                 HttpSession session){
         ServerResponse serverResponse =userService.login(username,password, RoleEnum.ROLE_ADMIN.getRole());
         //判断是否登录成功
@@ -28,4 +28,5 @@ public class UserManageController {
 
         return serverResponse;
     }
+
 }

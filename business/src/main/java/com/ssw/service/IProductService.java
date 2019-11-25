@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpSession;
+import java.util.List;
 
 public interface IProductService {
     public ServerResponse addOrUpdate(Product product);
@@ -21,4 +22,6 @@ public interface IProductService {
     public ServerResponse<Product> findProductById(Integer productId);
     //扣库存
     public ServerResponse reduceProductStock(Integer productId, Integer stock);
+    //查找热销产品
+    public ServerResponse isHotProduct(Integer category_id, Integer is_hot);
 }
