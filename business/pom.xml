@@ -151,7 +151,7 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-core</artifactId>
-            <version>1.2.3</version>
+            <version>1.2.9</version>
             <scope>compile</scope>
         </dependency>
         <!-- 打包时支付宝添加的依赖-->
